@@ -1,8 +1,11 @@
 package negotiator.groupn;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
+import negotiator.Bid;
 import negotiator.DeadlineType;
 import negotiator.Timeline;
 import negotiator.actions.Accept;
@@ -16,6 +19,16 @@ import negotiator.utility.UtilitySpace;
  */
 public class Groupn extends AbstractNegotiationParty {
 
+    private final Random rng;
+    private final Map<Object, GroupnOpponentModel> opponentModels;
+    private final GroupnOfferingStrategy offeringStrategy;
+    private final GroupnAcceptanceStrategy acceptanceStrategy;
+    
+    // Since the calls to chooseAction asks us if we want to accept a bid,
+    // but doesn't supply the bid, we have to look at the bids received and
+    // remember the most recent one.
+    private Bid currentBidOffered;
+    
     /**
      * Please keep this constructor. This is called by genius.
      *
@@ -28,12 +41,19 @@ public class Groupn extends AbstractNegotiationParty {
      * @param randomSeed
      *            If you use any randomization, use this seed for it.
      */
-    public Groupn(UtilitySpace utilitySpace,
-            Map<DeadlineType, Object> deadlines, Timeline timeline,
-            long randomSeed) {
-        // Make sure that this constructor calls it's parent.
-        super(utilitySpace, deadlines, timeline, randomSeed);
+    public Groupn(
+        UtilitySpace utilitySpace,
+        Map<DeadlineType, Object> deadlines, 
+        Timeline timeline,
+        long randomSeed
+    ) {
 
+        super(utilitySpace, deadlines, timeline, randomSeed);
+        
+        rng = new Random(randomSeed);
+        opponentModels = new HashMap<>();
+        offeringStrategy = new GroupnOfferingStrategy(utilitySpace, 0.2, 1.5, 0.1);
+        acceptanceStrategy = new GroupnAcceptanceStrategy(utilitySpace);
     }
 
     /**
@@ -47,13 +67,19 @@ public class Groupn extends AbstractNegotiationParty {
      */
     @Override
     public Action chooseAction(List<Class> validActions) {
-
-        // with 50% chance, counter offer
-        // if we are the first party, also offer.
-        if (!validActions.contains(Accept.class) || Math.random() > 0.5) {
-            return new Offer(generateRandomBid());
-        } else {
+        if (!validActions.contains(Accept.class)) {
+            // This is the first offer made, so we suggest our best utility.
+            return new Offer(offeringStrategy.getInitialBid());
+        }
+        
+        Bid counterOffer = offeringStrategy.generateBid(
+            rng, timeline, opponentModels.values()
+        );
+        
+        if (acceptanceStrategy.isBidAcceptable(currentBidOffered, counterOffer)) {
             return new Accept();
+        } else {
+            return new Offer(counterOffer);
         }
     }
 
@@ -70,7 +96,23 @@ public class Groupn extends AbstractNegotiationParty {
     @Override
     public void receiveMessage(Object sender, Action action) {
         super.receiveMessage(sender, action);
-        // Here you can listen to other parties' messages
+        
+        if (!(action instanceof Offer) && !(action instanceof Accept)) {
+            throw new IllegalArgumentException(
+                "action received was " + action.toString()
+                + " master never taught me how to deal with this :("
+            );
+        }
+        
+        if (action instanceof Offer) {
+            Offer offer = (Offer) action;
+            currentBidOffered = offer.getBid();
+        }
+        
+        opponentModels.putIfAbsent(sender, new GroupnOpponentModel(utilitySpace.getDomain()));
+        
+        // TODO: distinguish between accepted and offered? 
+        opponentModels.get(sender).addApprovedBid(currentBidOffered);
     }
 
 }

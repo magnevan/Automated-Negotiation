@@ -1,5 +1,6 @@
 package negotiator.groupn;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -12,7 +13,6 @@ import negotiator.utility.UtilitySpace;
 
 public class GroupnOfferingStrategy {
     private final SortedOutcomeSpace outcomeSpace;
-    private final List<GroupnOpponentModel> opponentModels;
     
     private final double reserveUtility;
     private final double suggestRange;
@@ -20,7 +20,6 @@ public class GroupnOfferingStrategy {
     
     public GroupnOfferingStrategy(
         UtilitySpace utilitySpace, 
-        List<GroupnOpponentModel> opponentModels,
         double reserveUtility,
         double concessionShape,
         double suggestRange
@@ -30,7 +29,6 @@ public class GroupnOfferingStrategy {
         }
         
         outcomeSpace = new SortedOutcomeSpace(utilitySpace);
-        this.opponentModels = opponentModels;
         this.reserveUtility = reserveUtility;
         this.suggestRange = suggestRange;
         this.concessionShape = concessionShape;
@@ -52,7 +50,7 @@ public class GroupnOfferingStrategy {
      * @param opponentModels models for all the opponents of the agent.
      * @return
      */
-    public Bid generateBid(Random rng, Timeline time, List<GroupnOpponentModel> opponentModels) {
+    public Bid generateBid(Random rng, Timeline time, Collection<GroupnOpponentModel> opponentModels) {
         double temperature = rng.nextDouble();
         
         double targetUtility = utilityGoal(time);
@@ -80,6 +78,9 @@ public class GroupnOfferingStrategy {
         }
     }
     
+    public Bid getInitialBid() {
+        return outcomeSpace.getMaxBidPossible().getBid();
+    }
     
     
     /**
