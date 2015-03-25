@@ -59,6 +59,7 @@ public class GroupnOfferingStrategy {
         
         if (temperature < time.getTime()) {
             // Select best option
+            System.out.println("Suggested best bid");
             Bid bestBid = null;
             double bestMinUtility = 0.0;
             for (BidDetails bid : possibleBids) {
@@ -73,6 +74,8 @@ public class GroupnOfferingStrategy {
             }
             return bestBid;
         } else {
+            // Select random bid in range
+            System.out.println("Suggested random bid");
             int i = rng.nextInt(possibleBids.size());
             return possibleBids.get(i).getBid();
         }

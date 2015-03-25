@@ -12,6 +12,7 @@ import negotiator.actions.Accept;
 import negotiator.actions.Action;
 import negotiator.actions.Offer;
 import negotiator.parties.AbstractNegotiationParty;
+import negotiator.parties.NegotiationParty;
 import negotiator.utility.UtilitySpace;
 
 /**
@@ -52,7 +53,7 @@ public class Groupn extends AbstractNegotiationParty {
         
         rng = new Random(randomSeed);
         opponentModels = new HashMap<>();
-        offeringStrategy = new GroupnOfferingStrategy(utilitySpace, 0.2, 1.5, 0.1);
+        offeringStrategy = new GroupnOfferingStrategy(utilitySpace, 0.5, 1.7, 0.05);
         acceptanceStrategy = new GroupnAcceptanceStrategy(utilitySpace);
     }
 
@@ -72,14 +73,28 @@ public class Groupn extends AbstractNegotiationParty {
             return new Offer(offeringStrategy.getInitialBid());
         }
         
+        System.out.println("Entering round " + timeline.getCurrentTime());
+        
         Bid counterOffer = offeringStrategy.generateBid(
             rng, timeline, opponentModels.values()
         );
         
-        if (acceptanceStrategy.isBidAcceptable(currentBidOffered, counterOffer)) {
+        try { 
+            if (acceptanceStrategy.isBidAcceptable(currentBidOffered, counterOffer)) {
+                System.out.println("Accepted offer of utility " + utilitySpace.getUtility(currentBidOffered));
+                return new Accept();
+            } else {
+                System.out.printf(
+                    "Countered offer of utility %.3f with offer of utility %.3f\n",
+                    utilitySpace.getUtility(currentBidOffered),
+                    utilitySpace.getUtility(counterOffer)
+                );
+                currentBidOffered = counterOffer;
+                return new Offer(counterOffer);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
             return new Accept();
-        } else {
-            return new Offer(counterOffer);
         }
     }
 
@@ -98,15 +113,22 @@ public class Groupn extends AbstractNegotiationParty {
         super.receiveMessage(sender, action);
         
         if (!(action instanceof Offer) && !(action instanceof Accept)) {
-            throw new IllegalArgumentException(
-                "action received was " + action.toString()
-                + " master never taught me how to deal with this :("
-            );
+            System.out.println("Received unhandled action " + action.toString());
+            return;
         }
         
         if (action instanceof Offer) {
             Offer offer = (Offer) action;
             currentBidOffered = offer.getBid();
+        } else if (action instanceof Accept) {
+            try {
+                System.out.printf("%s accepted offer of utility %.3f\n",
+                    sender.toString(),
+                    utilitySpace.getUtility(currentBidOffered)
+                );
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         
         opponentModels.putIfAbsent(sender, new GroupnOpponentModel(utilitySpace.getDomain()));
