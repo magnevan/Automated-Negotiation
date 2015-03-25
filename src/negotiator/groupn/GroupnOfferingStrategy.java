@@ -14,12 +14,14 @@ public class GroupnOfferingStrategy {
     private final SortedOutcomeSpace outcomeSpace;
     private final List<GroupnOpponentModel> opponentModels;
     
+    private final double reserveUtility;
     private final double suggestRange;
     private final double concessionShape;
     
     public GroupnOfferingStrategy(
         UtilitySpace utilitySpace, 
         List<GroupnOpponentModel> opponentModels,
+        double reserveUtility,
         double concessionShape,
         double suggestRange
     ) {
@@ -29,6 +31,7 @@ public class GroupnOfferingStrategy {
         
         outcomeSpace = new SortedOutcomeSpace(utilitySpace);
         this.opponentModels = opponentModels;
+        this.reserveUtility = reserveUtility;
         this.suggestRange = suggestRange;
         this.concessionShape = concessionShape;
     }
@@ -87,11 +90,15 @@ public class GroupnOfferingStrategy {
      * @return a double between 0.0 and 1.0 telling us the utility we should aim to get.
      */
     private double utilityGoal(Timeline time) {
+        double utility;
+        
         // getTime returns a double between 0.0 (start) and 1.0 (end)
         if (concessionShape < 1.0) {
-            return 1.0 - Math.pow(time.getTime(), concessionShape);
+            utility = 1.0 - Math.pow(time.getTime(), concessionShape);
         } else {
-            return 1.0 - Math.pow(time.getTime(), 1.0 / (2.0 - concessionShape));
+            utility = 1.0 - Math.pow(time.getTime(), 1.0 / (2.0 - concessionShape));
         }
+        
+        return reserveUtility + (1.0 - reserveUtility) * utility;
     }
 }
