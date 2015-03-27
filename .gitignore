@@ -2,4 +2,5 @@ bin/
 Log*.csv
 DataObjects/
 *.csv
-bin/
+*.xml
+*.pyc
