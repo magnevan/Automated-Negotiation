@@ -1,5 +1,15 @@
 package negotiator.groupn;
 
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,8 +22,9 @@ import negotiator.actions.Accept;
 import negotiator.actions.Action;
 import negotiator.actions.Offer;
 import negotiator.parties.AbstractNegotiationParty;
-import negotiator.parties.NegotiationParty;
 import negotiator.utility.UtilitySpace;
+
+import org.json.simple.JSONObject;
 
 /**
  * This is your negotiation party.
@@ -24,6 +35,8 @@ public class Groupn extends AbstractNegotiationParty {
     private final Map<Object, GroupnOpponentModel> opponentModels;
     private final GroupnOfferingStrategy offeringStrategy;
     private final GroupnAcceptanceStrategy acceptanceStrategy;
+    
+    private Writer logWriter;
     
     // Since the calls to chooseAction asks us if we want to accept a bid,
     // but doesn't supply the bid, we have to look at the bids received and
@@ -55,6 +68,17 @@ public class Groupn extends AbstractNegotiationParty {
         opponentModels = new HashMap<>();
         offeringStrategy = new GroupnOfferingStrategy(utilitySpace, 0.5, 1.7, 0.05);
         acceptanceStrategy = new GroupnAcceptanceStrategy(utilitySpace);
+        
+        DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
+        Date date = new Date();
+        String logName = "OpponentModel-Session_" + dateFormat.format(date) + ".json";
+        try {
+            logWriter = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(logName), "utf-8")
+            );
+        } catch (UnsupportedEncodingException | FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -74,6 +98,19 @@ public class Groupn extends AbstractNegotiationParty {
         }
         
         System.out.println("Entering round " + timeline.getCurrentTime());
+        
+        // Log what we think the opponents models look like
+        JSONObject obj = new JSONObject();
+        obj.put("turn", timeline.getCurrentTime());
+        opponentModels.forEach(
+            (op, model) -> obj.put(op.toString(), model.json())
+        );
+        try {
+            logWriter.write(obj.toJSONString());
+            logWriter.write("\n");
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
         
         Bid counterOffer = offeringStrategy.generateBid(
             rng, timeline, opponentModels.values()

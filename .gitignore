@@ -4,3 +4,4 @@ DataObjects/
 *.csv
 *.xml
 *.pyc
+*.json

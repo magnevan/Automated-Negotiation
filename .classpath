@@ -7,5 +7,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/genius-anac-2015-master/genius_docs.zip!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Magne/Dropbox/Skole/Multiagent/proj part 2/genius-anac-2015-master/json-simple-1.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

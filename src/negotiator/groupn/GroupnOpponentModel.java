@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import negotiator.Bid;
@@ -11,6 +12,9 @@ import negotiator.Domain;
 import negotiator.issue.Issue;
 import negotiator.issue.IssueDiscrete;
 import negotiator.issue.ValueDiscrete;
+
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 /**
  * Opponent modeling using frequency analysis heuristic
@@ -91,6 +95,22 @@ public class GroupnOpponentModel {
         }
 
         return utility;
+    }
+    
+    public JSONObject json() {
+        JSONObject obj = new JSONObject();
+        
+        JSONObject jsonWeights = new JSONObject();
+        this.weights.forEach((i, d) -> jsonWeights.put(i.getName(), d));
+        obj.put("weights", jsonWeights);
+        
+        for (IssueDiscrete issue : issueValueCount.keySet()) {
+            JSONObject items = new JSONObject();
+            issueValueCount.get(issue).forEach((vd, i) -> items.put(vd.getValue(), ((double) i) / datapoints));
+            obj.put(issue.getName(), items);
+        }
+        
+        return obj;
     }
 
     /**
