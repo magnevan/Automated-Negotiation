@@ -57,7 +57,7 @@ public class GroupnOfferingStrategy {
         Range range = new Range(targetUtility - suggestRange/2.0, targetUtility + suggestRange/2.0);
         List<BidDetails> possibleBids = outcomeSpace.getBidsinRange(range);
         
-        if (temperature < time.getTime()) {
+        //if (temperature < time.getTime()) {
             // Select best option
             System.out.println("Suggested best bid");
             Bid bestBid = null;
@@ -72,13 +72,14 @@ public class GroupnOfferingStrategy {
                     bestMinUtility = worstOpponentUtility;
                 }
             }
+            System.out.println("Worst opponent utility " + bestMinUtility);
             return bestBid;
-        } else {
-            // Select random bid in range
-            System.out.println("Suggested random bid");
-            int i = rng.nextInt(possibleBids.size());
-            return possibleBids.get(i).getBid();
-        }
+        //} else {
+        //    // Select random bid in range
+        //    System.out.println("Suggested random bid");
+        //    int i = rng.nextInt(possibleBids.size());
+        //    return possibleBids.get(i).getBid();
+        //}
     }
     
     public Bid getInitialBid() {

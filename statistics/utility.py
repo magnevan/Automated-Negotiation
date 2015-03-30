@@ -1,4 +1,6 @@
 import xml.etree.ElementTree as ET
+import fnmatch
+import os
 
 class Utility:
     def __init__(self, fname):
@@ -21,6 +23,7 @@ class Utility:
                 data[k] = v / item_max
 
             self.issues[issue.attrib['name']] = data
+                
 
     def print_weights(self):
         for issue, item in self.issues.iteritems():
@@ -33,3 +36,7 @@ class Utility:
         for issue, item in offer.iteritems():
             utility += self.weights[issue] * self.issues[issue][item]
         return utility
+
+def files_of_type(pattern):
+    return fnmatch.filter(os.listdir('.'), pattern)
+        

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import negotiator.AgentID;
 import negotiator.Bid;
 import negotiator.DeadlineType;
 import negotiator.Timeline;
@@ -92,24 +93,27 @@ public class Groupn extends AbstractNegotiationParty {
      */
     @Override
     public Action chooseAction(List<Class> validActions) {
-        if (!validActions.contains(Accept.class)) {
-            // This is the first offer made, so we suggest our best utility.
-            return new Offer(offeringStrategy.getInitialBid());
-        }
-        
         System.out.println("Entering round " + timeline.getCurrentTime());
         
         // Log what we think the opponents models look like
-        JSONObject obj = new JSONObject();
-        obj.put("turn", timeline.getCurrentTime());
-        opponentModels.forEach(
-            (op, model) -> obj.put(op.toString(), model.json())
-        );
-        try {
-            logWriter.write(obj.toJSONString());
-            logWriter.write("\n");
-        } catch (IOException e1) {
-            e1.printStackTrace();
+        if (this.getPartyId().equals(new AgentID("Party 1"))) {
+            JSONObject obj = new JSONObject();
+            obj.put("turn", timeline.getCurrentTime());
+            opponentModels.forEach(
+                (op, model) -> obj.put(op.toString(), model.json())
+            );
+            try {
+                logWriter.write(obj.toJSONString());
+                logWriter.write("\n");
+                logWriter.flush();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+        
+        if (!validActions.contains(Accept.class)) {
+            // This is the first offer made, so we suggest our best utility.
+            return new Offer(offeringStrategy.getInitialBid());
         }
         
         Bid counterOffer = offeringStrategy.generateBid(
