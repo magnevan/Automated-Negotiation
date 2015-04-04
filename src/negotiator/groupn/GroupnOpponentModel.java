@@ -23,6 +23,9 @@ import org.json.simple.JSONValue;
 public class GroupnOpponentModel {
     private Map<IssueDiscrete, Map<ValueDiscrete, Integer>> issueValueCount;
     private Map<IssueDiscrete, Double> weights;
+    
+    private final double lrate = 0.1;
+    private Bid lastBid = null;
 
     // Number of bids entered into the model.
     // This value is for convenience since the sum of the counts for each
@@ -31,12 +34,15 @@ public class GroupnOpponentModel {
 
     public GroupnOpponentModel(Domain domain) {
         issueValueCount = new HashMap<>();
+        weights = new HashMap<>();
         for (Issue issue : domain.getIssues()) {
             IssueDiscrete issueDiscrete = (IssueDiscrete) issue;
             issueValueCount.put(issueDiscrete, new HashMap<>());
             for (ValueDiscrete value : issueDiscrete.getValues()) {
-                issueValueCount.get(issueDiscrete).put(value, 0);
+                issueValueCount.get(issueDiscrete).put(value, 1);
             }
+            
+            weights.put(issueDiscrete, 1.0 / domain.getIssues().size());
         }
     }
 
@@ -59,7 +65,18 @@ public class GroupnOpponentModel {
                         .getNumber());
                 issueValueCount.get(issue).compute(value, (k, v) -> v + 1);
             }
-            weights = computeWeights();
+            if (lastBid != null) {
+                for (Issue issue : bid.getIssues()) {
+                    if (bid.getValue(issue.getNumber()).equals(lastBid.getValue(issue.getNumber()))) {
+                        weights.put((IssueDiscrete) issue, weights.get(issue) + lrate);
+                    }
+                }
+                // normalize
+                double sum = weights.values().stream().reduce(0.0, Double::sum);
+                weights.replaceAll((k, v) -> v / sum);
+            }
+            lastBid = bid;
+            //weights = computeWeights();
             datapoints++;
         } catch (Exception e) {
             e.printStackTrace();
@@ -131,7 +148,7 @@ public class GroupnOpponentModel {
                     .values());
             int max = counts.stream().max(Integer::compare).get();
             List<Double> weightedCounts = counts.stream()
-                    .mapToDouble(i -> ((double) i / max)).boxed()
+                    .mapToDouble(i -> (((double) i) / max)).boxed()
                     .collect(Collectors.toList());
 
             double avg = weightedCounts.stream().reduce(0.0, Double::sum)
@@ -139,7 +156,7 @@ public class GroupnOpponentModel {
             double variance = weightedCounts.stream()
                     .mapToDouble(d -> (d - avg) * (d - avg)).sum()
                     / weightedCounts.size();
-            weights.put(issue, variance);
+            weights.put(issue, 1.0/variance);
         }
 
         // Normalize weights (make them sum to 1.0)

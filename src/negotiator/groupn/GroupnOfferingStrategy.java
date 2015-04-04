@@ -51,15 +51,20 @@ public class GroupnOfferingStrategy {
      * @return
      */
     public Bid generateBid(Random rng, Timeline time, Collection<GroupnOpponentModel> opponentModels) {
-        double temperature = rng.nextDouble();
-        
-        double targetUtility = utilityGoal(time);
+        double targetUtility = utilityGoal(time, this.concessionShape, this.reserveUtility);
         Range range = new Range(targetUtility - suggestRange/2.0, targetUtility + suggestRange/2.0);
+        if (range.getUpperbound() > 1.0) {
+            range.setLowerbound(range.getLowerbound() - (range.getUpperbound() - 1.0));
+            range.setUpperbound(1.0);
+        }
         List<BidDetails> possibleBids = outcomeSpace.getBidsinRange(range);
+        System.out.println("Number of bids in range " + possibleBids.size());
         
-        //if (temperature < time.getTime()) {
+        double temperature = rng.nextDouble();
+        if (temperature > utilityGoal(time, 0.25, 0.0)) {
             // Select best option
             System.out.println("Suggested best bid");
+            
             Bid bestBid = null;
             double bestMinUtility = 0.0;
             for (BidDetails bid : possibleBids) {
@@ -72,14 +77,16 @@ public class GroupnOfferingStrategy {
                     bestMinUtility = worstOpponentUtility;
                 }
             }
+            
             System.out.println("Worst opponent utility " + bestMinUtility);
             return bestBid;
-        //} else {
-        //    // Select random bid in range
-        //    System.out.println("Suggested random bid");
-        //    int i = rng.nextInt(possibleBids.size());
-        //    return possibleBids.get(i).getBid();
-        //}
+            
+        } else {
+            // Select random bid in range
+            System.out.println("Suggested random bid");
+            int i = rng.nextInt(possibleBids.size());
+            return possibleBids.get(i).getBid();
+        }
     }
     
     public Bid getInitialBid() {
@@ -94,7 +101,7 @@ public class GroupnOfferingStrategy {
      * @param time the current timeline we should base the goal utility on
      * @return a double between 0.0 and 1.0 telling us the utility we should aim to get.
      */
-    private double utilityGoal(Timeline time) {
+    private double utilityGoal(Timeline time, double concessionShape, double reserveUtility) {
         double utility;
         
         // getTime returns a double between 0.0 (start) and 1.0 (end)
