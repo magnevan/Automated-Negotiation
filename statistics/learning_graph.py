@@ -5,10 +5,10 @@ import math
 import pdb
 import matplotlib.pyplot as plt
 
-logfile = "OpponentModel-Session_20150329-170047.json"
+logfile = "OpponentModel-Session_20150404-150205"
 op_utility = {
-    "Party 2" : Utility("party2_utility.xml"),
-    "Party 3" : Utility("party3_utility.xml")
+    "Boulware" : Utility("party3_utility.xml"),
+    "Conceder" : Utility("party2_utility.xml")
 }
 
 def read_json(op_utility):

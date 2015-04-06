@@ -30,7 +30,7 @@ public class GroupnOpponentModel {
     // Number of bids entered into the model.
     // This value is for convenience since the sum of the counts for each
     // issue is equivalent to this
-    private int datapoints = 0;
+    private int datapoints = 1;
 
     public GroupnOpponentModel(Domain domain) {
         issueValueCount = new HashMap<>();

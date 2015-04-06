@@ -6,11 +6,21 @@ import numpy as np
 from utility import *
 import json
 
+
 ut = [
     Utility('party1_utility.xml'),
     Utility('party2_utility.xml'),
     Utility('party3_utility.xml')
 ]
+"""
+ut = [
+    Utility('University_util7.xml'),
+    Utility('University_util8.xml'),
+    Utility('University_util9.xml')
+]
+"""
+
+    
 
 def read_csv():
     runfile = files_of_type('*.csv')[0]
@@ -46,6 +56,7 @@ def read_csv():
                     # as long as the word doesn't end with a colon. Also, don't match the word
                     # that ends with a colon.
                     # Look, regex is hard ok? Just skip this line, it will only drive you mad.
+                    #for issue_item in offer_text.split(', '):
                     for issue_item in re.findall('(\w+:(?: [\w,-]+(?! \w+:))+)', offer_text):
                         issue, item = issue_item.split(': ')
                         offer[issue] = item
@@ -70,6 +81,9 @@ def read_json():
 def eval_utility(bid, ut):
     utility = 0.0
     for issue in bid:
+        if not 'weights' in ut:
+            # first round, we don't have models
+            return 0.0
         utility += ut['weights'][issue] * ut[issue][bid[issue]]
     return utility
 
@@ -94,7 +108,7 @@ for i in xrange(3):
             round_num.append(rn)
             if rn < len(predicted_models) and party_name in predicted_models[rn]:
                 predicted_utility.append(eval_utility(r[0]['offer'], predicted_models[rn][party_name]))
-        if r[i]['accept']:
+        if i < len(r) and r[i]['accept']:
             accepts.append((rn, utility[-1]))
 
     round_num, utility, predicted_utility \
