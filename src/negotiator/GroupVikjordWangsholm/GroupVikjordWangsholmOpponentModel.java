@@ -1,4 +1,4 @@
-package negotiator.groupn;
+package negotiator.GroupVikjordWangsholm;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +20,7 @@ import org.json.simple.JSONValue;
  * Opponent modeling using frequency analysis heuristic
  *
  */
-public class GroupnOpponentModel {
+public class GroupVikjordWangsholmOpponentModel {
     private Map<IssueDiscrete, Map<ValueDiscrete, Integer>> issueValueCount;
     private Map<IssueDiscrete, Double> weights;
     
@@ -32,7 +32,7 @@ public class GroupnOpponentModel {
     // issue is equivalent to this
     private int datapoints = 1;
 
-    public GroupnOpponentModel(Domain domain) {
+    public GroupVikjordWangsholmOpponentModel(Domain domain) {
         issueValueCount = new HashMap<>();
         weights = new HashMap<>();
         for (Issue issue : domain.getIssues()) {

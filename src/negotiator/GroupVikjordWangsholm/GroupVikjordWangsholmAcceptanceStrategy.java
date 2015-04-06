@@ -1,12 +1,12 @@
-package negotiator.groupn;
+package negotiator.GroupVikjordWangsholm;
 
 import negotiator.Bid;
 import negotiator.utility.UtilitySpace;
 
-public class GroupnAcceptanceStrategy {
+public class GroupVikjordWangsholmAcceptanceStrategy {
     private final UtilitySpace utilitySpace;
     
-    public GroupnAcceptanceStrategy(
+    public GroupVikjordWangsholmAcceptanceStrategy(
         UtilitySpace utilitySpace
     ) {
         this.utilitySpace = utilitySpace;

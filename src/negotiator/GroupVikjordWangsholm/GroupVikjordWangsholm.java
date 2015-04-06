@@ -1,4 +1,4 @@
-package negotiator.groupn;
+package negotiator.GroupVikjordWangsholm;
 
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -30,12 +30,12 @@ import org.json.simple.JSONObject;
 /**
  * This is your negotiation party.
  */
-public class Groupn extends AbstractNegotiationParty {
+public class GroupVikjordWangsholm extends AbstractNegotiationParty {
 
     private final Random rng;
-    private final Map<Object, GroupnOpponentModel> opponentModels;
-    private final GroupnOfferingStrategy offeringStrategy;
-    private final GroupnAcceptanceStrategy acceptanceStrategy;
+    private final Map<Object, GroupVikjordWangsholmOpponentModel> opponentModels;
+    private final GroupVikjordWangsholmOfferingStrategy offeringStrategy;
+    private final GroupVikjordWangsholmAcceptanceStrategy acceptanceStrategy;
     
     private Writer logWriter;
     
@@ -56,7 +56,7 @@ public class Groupn extends AbstractNegotiationParty {
      * @param randomSeed
      *            If you use any randomization, use this seed for it.
      */
-    public Groupn(
+    public GroupVikjordWangsholm(
         UtilitySpace utilitySpace,
         Map<DeadlineType, Object> deadlines, 
         Timeline timeline,
@@ -67,8 +67,8 @@ public class Groupn extends AbstractNegotiationParty {
         
         rng = new Random(randomSeed);
         opponentModels = new HashMap<>();
-        offeringStrategy = new GroupnOfferingStrategy(utilitySpace, 0.5, 1.7, 0.05);
-        acceptanceStrategy = new GroupnAcceptanceStrategy(utilitySpace);
+        offeringStrategy = new GroupVikjordWangsholmOfferingStrategy(utilitySpace, 0.5, 1.7, 0.05);
+        acceptanceStrategy = new GroupVikjordWangsholmAcceptanceStrategy(utilitySpace);
         
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
         Date date = new Date();
@@ -174,7 +174,7 @@ public class Groupn extends AbstractNegotiationParty {
             }
         }
         
-        opponentModels.putIfAbsent(sender, new GroupnOpponentModel(utilitySpace.getDomain()));
+        opponentModels.putIfAbsent(sender, new GroupVikjordWangsholmOpponentModel(utilitySpace.getDomain()));
         
         // TODO: distinguish between accepted and offered? 
         opponentModels.get(sender).addApprovedBid(currentBidOffered);

@@ -1,4 +1,4 @@
-package negotiator.groupn;
+package negotiator.GroupVikjordWangsholm;
 
 import java.util.Collection;
 import java.util.List;
@@ -11,14 +11,14 @@ import negotiator.bidding.BidDetails;
 import negotiator.boaframework.SortedOutcomeSpace;
 import negotiator.utility.UtilitySpace;
 
-public class GroupnOfferingStrategy {
+public class GroupVikjordWangsholmOfferingStrategy {
     private final SortedOutcomeSpace outcomeSpace;
     
     private final double reserveUtility;
     private final double suggestRange;
     private final double concessionShape;
     
-    public GroupnOfferingStrategy(
+    public GroupVikjordWangsholmOfferingStrategy(
         UtilitySpace utilitySpace, 
         double reserveUtility,
         double concessionShape,
@@ -50,7 +50,7 @@ public class GroupnOfferingStrategy {
      * @param opponentModels models for all the opponents of the agent.
      * @return
      */
-    public Bid generateBid(Random rng, Timeline time, Collection<GroupnOpponentModel> opponentModels) {
+    public Bid generateBid(Random rng, Timeline time, Collection<GroupVikjordWangsholmOpponentModel> opponentModels) {
         double targetUtility = utilityGoal(time, this.concessionShape, this.reserveUtility);
         Range range = new Range(targetUtility - suggestRange/2.0, targetUtility + suggestRange/2.0);
         if (range.getUpperbound() > 1.0) {
