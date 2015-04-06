@@ -96,6 +96,7 @@ public class Groupn extends AbstractNegotiationParty {
         System.out.println("Entering round " + timeline.getCurrentTime());
         
         // Log what we think the opponents models look like
+        /*
         if (this.getPartyId().equals(new AgentID("Party 1"))) {
             JSONObject obj = new JSONObject();
             obj.put("turn", timeline.getCurrentTime());
@@ -110,6 +111,7 @@ public class Groupn extends AbstractNegotiationParty {
                 e1.printStackTrace();
             }
         }
+        */
         
         if (!validActions.contains(Accept.class)) {
             // This is the first offer made, so we suggest our best utility.
